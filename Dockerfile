@@ -14,4 +14,4 @@ FROM openjdk:8-jre-alpine3.9
 COPY --from=MAVEN_BUILD ./target/*.jar /login-service.jar
 EXPOSE 8080
 # set the startup command to execute the jar
-CMD ["java", "-jar", "/demo.jar"]
+CMD ["java", "-jar", "/login-service.jar"]
