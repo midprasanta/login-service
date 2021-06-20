@@ -1,17 +1,9 @@
-#the first stage of our build will use a maven 3.6.1 parent image
-FROM maven:3.6.1-jdk-8-alpine AS MAVEN_BUILD
- 
-# copy the pom and src code to the container
-COPY ./ ./
- 
-# package our application code
-RUN mvn clean package
- 
-# the second stage of our build will use open jdk 8 on alpine 3.9
-FROM openjdk:8-jre-alpine3.9
- 
-# copy only the artifacts we need from the first stage and discard the rest
-COPY --from=MAVEN_BUILD ./target/*.jar /login-service.jar
-EXPOSE 8080
-# set the startup command to execute the jar
-CMD ["java", "-jar", "/demo.jar"]
+FROM openjdk:8-jdk-alpine as builder
+RUN  mkdir -p /workdir
+COPY . /workdir
+WORKDIR /workdir
+RUN ./mvnw clean package -Dmaven.test.skip=true
+
+FROM openjdk:8-jdk-alpine as runtime
+COPY --from=builder  /workdir/target/*.jar /app.jar
+CMD ["java", "-jar", "/app.jar"]
